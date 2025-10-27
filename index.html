@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>結婚祝いプレゼント候補 投票システム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .admin-toggle {
+            margin-top: 15px;
+        }
+
+        .admin-toggle button {
+            padding: 8px 16px;
+            background: #757575;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s;
+        }
+
+        .admin-toggle button:hover {
+            background: #616161;
+        }
+
+        .admin-panel {
+            background: #fafafa;
+            border: 2px solid #e0e0e0;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .admin-panel.active {
+            display: block;
+        }
+
+        .admin-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #424242;
+            margin-bottom: 20px;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .admin-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .btn-reset {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #d32f2f;
+        }
+
+        .btn-export {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-export:hover {
+            background: #1976D2;
+        }
+
+        .btn-import {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-import:hover {
+            background: #388E3C;
+        }
+
+        .voter-management {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .voter-management h3 {
+            color: #424242;
+            margin-bottom: 15px;
+        }
+
+        .voter-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .voter-info {
+            flex: 1;
+        }
+
+        .voter-name-label {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .voter-products {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .delete-voter-btn {
+            padding: 8px 16px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .delete-voter-btn:hover {
+            background: #d32f2f;
+        }
+
+        .voting-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .voting-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .voting-header h2 {
+            color: #666;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .voting-header p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .voting-notice {
+            background: #ffebee;
+            border: 2px solid #e91e63;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .voting-notice strong {
+            color: #c2185b;
+            font-size: 1.1em;
+        }
+
+        .voter-info-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .voter-info-box input {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.1em;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            transition: border-color 0.3s;
+        }
+
+        .voter-info-box input:focus {
+            outline: none;
+            border-color: #e91e63;
+        }
+
+        .voter-info-box label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .my-votes-section {
+            background: #e8f5e9;
+            border: 2px solid #4CAF50;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .my-votes-header {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .my-votes-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .my-vote-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.95em;
+        }
+
+        .remove-vote-btn {
+            background: #ff5252;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            font-size: 0.8em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        .remove-vote-btn:hover {
+            background: #d32f2f;
+        }
+
+        .clear-all-btn {
+            padding: 8px 16px;
+            background: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s;
+        }
+
+        .clear-all-btn:hover {
+            background: #f57c00;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .product-card {
+            background: white;
+            border: 3px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .product-card.selected {
+            border-color: #4CAF50;
+            background: #f1f8f4;
+            box-shadow: 0 8px 20px rgba(76,175,80,0.3);
+        }
+
+        .product-card input[type="checkbox"] {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            accent-color: #4CAF50;
+        }
+
+        .product-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 12px;
+            padding-right: 30px;
+        }
+
+        .product-info {
+            margin-bottom: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 8px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #e91e63;
+            min-width: 80px;
+            margin-right: 10px;
+        }
+
+        .info-value {
+            flex: 1;
+        }
+
+        .product-link {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 16px;
+            background: #e91e63;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.9em;
+            transition: background 0.3s;
+        }
+
+        .product-link:hover {
+            background: #c2185b;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .submit-btn {
+            flex: 1;
+            padding: 18px;
+            font-size: 1.3em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(76,175,80,0.4);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(76,175,80,0.5);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .update-btn {
+            flex: 1;
+            padding: 18px;
+            font-size: 1.3em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255,152,0,0.4);
+        }
+
+        .update-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255,152,0,0.5);
+        }
+
+        .results-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .results-header h2 {
+            color: #e91e63;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .result-item {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 5px solid #e91e63;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .result-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .result-votes {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #e91e63;
+        }
+
+        .result-bar {
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .result-bar-fill {
+            height: 100%;
+            background: #f5f5f5;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .voters-list {
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+
+        .voters-label {
+            font-weight: bold;
+            color: #e91e63;
+            margin-bottom: 5px;
+        }
+
+        .voter-name {
+            display: inline-block;
+            padding: 4px 10px;
+            margin: 3px;
+            background: #e91e63;
+            color: white;
+            border-radius: 10px;
+            font-size: 0.9em;
+        }
+
+        .winner-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            background: #FFD700;
+            color: #333;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-left: 10px;
+            font-size: 0.9em;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #f44336;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .modal-btn-cancel {
+            background: #999;
+            color: white;
+        }
+
+        .modal-btn-cancel:hover {
+            background: #777;
+        }
+
+        .modal-btn-confirm {
+            background: #f44336;
+            color: white;
+        }
+
+        .modal-btn-confirm:hover {
+            background: #d32f2f;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .result-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .result-votes {
+                margin-top: 10px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .admin-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💝 結婚祝いプレゼント候補 💝</h1>
+            <p class="subtitle">投票システム</p>
+            <div class="admin-toggle">
+                <button onclick="toggleAdminPanel()">🔧 管理者パネル</button>
+            </div>
+        </header>
+
+        <!-- 管理者パネル -->
+        <div class="admin-panel" id="adminPanel">
+            <div class="admin-title">🔧 管理者パネル</div>
+            
+            <div class="admin-actions">
+                <button class="admin-btn btn-reset" onclick="showResetModal()">🗑️ すべての投票をリセット</button>
+                <button class="admin-btn btn-export" onclick="exportData()">📥 データをエクスポート</button>
+                <button class="admin-btn btn-import" onclick="document.getElementById('importFile').click()">📤 データをインポート</button>
+                <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importData(event)">
+            </div>
+
+            <div class="voter-management">
+                <h3>投票者管理（個別削除）</h3>
+                <div id="voterManagementList"></div>
+            </div>
+        </div>
+
+        <div class="voting-section">
+            <div class="voting-header">
+                <h2>📋 投票フォーム</h2>
+                <p>お好みのプレゼントを複数選んで投票できます<br>投票後も自由に修正可能です</p>
+            </div>
+
+            <div class="voting-notice">
+                <strong>✨ 複数選択OK！何度でも修正できます ✨</strong>
+            </div>
+
+            <div id="alertBox"></div>
+
+            <form id="votingForm">
+                <div class="voter-info-box">
+                    <label for="voterName">お名前 *</label>
+                    <input type="text" id="voterName" placeholder="山田 太郎" required>
+                </div>
+
+                <div id="myVotesSection" class="my-votes-section" style="display: none;">
+                    <div class="my-votes-header">
+                        <span>🎁 あなたの現在の投票</span>
+                    </div>
+                    <div id="myVotesList" class="my-votes-list"></div>
+                    <button type="button" class="clear-all-btn" onclick="clearAllVotes()">すべてクリア</button>
+                </div>
+
+                <div class="product-grid">
+                    <!-- LODGEエナメルダッチオーブン -->
+                    <div class="product-card" onclick="toggleProduct(0)">
+                        <input type="checkbox" name="product" value="LODGE エナメルダッチオーブン EC1D43" id="prod0" onclick="event.stopPropagation(); updateCardSelection();">
+                        <div class="product-name">LODGE エナメルダッチオーブン EC1D43 レッド 1.5qt</div>
+                        <div class="product-info">
+                            <div class="info-item">
+                                <span class="info-label">価格:</span>
+                                <span class="info-value">約¥8,000～¥13,000</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">特徴:</span>
+                                <span class="info-value">夫婦ともに料理好きに人気、PFASフリー品、IH対応、食洗機対応</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">サイズ:</span>
+                                <span class="info-value">1.5クォート（約1.4リットル）二人分に最適</span>
+                            </div>
+                        </div>
+                        <a href="https://www.amazon.co.jp/Lodge-Enameled-Dutch-Oven-EC1D43PLT/dp/B0DFDXD5NG" target="_blank" class="product-link" onclick="event.stopPropagation()">🔗 商品を見る</a>
+                    </div>
+
+                    <!-- LODGEスキレット -->
+                    <div class="product-card" onclick="toggleProduct(1)">
+                        <input type="checkbox" name="product" value="LODGE シーズンスチール スキレット CRS12" id="prod1" onclick="event.stopPropagation(); updateCardSelection();">
+                        <div class="product-name">LODGE シーズンスチール スキレット CRS12 12インチ</div>
+                        <div class="product-info">
+                            <div class="info-item">
+                                <span class="info-label">価格:</span>
+                                <span class="info-value">約¥8,000～¥12,000</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">特徴:</span>
+                                <span class="info-value">夫婦ともに料理好きに人気、PFASフリー品、カーボンスチール製</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">サイズ:</span>
+                                <span class="info-value">12インチ（直径約30cm）ステーキなどに最適</span>
+                            </div>
+                        </div>
+                        <a href="https://www.amazon.co.jp/%E3%83%AD%E3%83%83%E3%82%B8-%E3%82%B7%E3%83%BC%E3%82%BA%E3%83%B3%E3%82%B9%E3%83%81%E3%83%BC%E3%83%AB-%E3%82%B9%E3%82%AD%E3%83%AC%E3%83%83%E3%83%88-12-CRS12/dp/B005U93RYW" target="_blank" class="product-link" onclick="event.stopPropagation()">🔗 商品を見る</a>
+                    </div>
+
+                    <!-- Le Creuset レジェ・マグ -->
+                    <div class="product-card" onclick="toggleProduct(2)">
+                        <input type="checkbox" name="product" value="Le Creuset レジェ・マグ ペアセット" id="prod2" onclick="event.stopPropagation(); updateCardSelection();">
+                        <div class="product-name">Le Creuset レジェ・マグ ペアセット（セルフラッピング資材付き）</div>
+                        <div class="product-info">
+                            <div class="info-item">
+                                <span class="info-label">価格:</span>
+                                <span class="info-value">約¥9,000～¥10,000</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">特徴:</span>
+                                <span class="info-value">おしゃれ、コーヒー好きに最適、ストーンウェア、電子レンジ・オーブン対応</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">内容:</span>
+                                <span class="info-value">マグカップ2個セット（350ml）、セルフラッピング資材・紙袋付き</span>
+                            </div>
+                        </div>
+                        <a href="https://www.lecreuset.co.jp/pdp/JPPB00000045.html" target="_blank" class="product-link" onclick="event.stopPropagation()">🔗 商品を見る</a>
+                    </div>
+
+                    <!-- Cutipol カトラリーセット -->
+                    <div class="product-card" onclick="toggleProduct(3)">
+                        <input type="checkbox" name="product" value="Cutipol GOAシリーズ カトラリーペアセット" id="prod3" onclick="event.stopPropagation(); updateCardSelection();">
+                        <div class="product-name">Cutipol（クチポール）GOAシリーズ カトラリーペアセット</div>
+                        <div class="product-info">
+                            <div class="info-item">
+                                <span class="info-label">価格:</span>
+                                <span class="info-value">約¥8,000～¥10,000</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">特徴:</span>
+                                <span class="info-value">おしゃれ、おいしくご飯たべれそう、洗練されたデザイン、ハンドメイド</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">内容:</span>
+                                <span class="info-value">テーブルスプーン×2、テーブルフォーク×2</span>
+                            </div>
+                        </div>
+                        <a href="https://tanp.jp/products/view/40083" target="_blank" class="product-link" onclick="event.stopPropagation()">🔗 商品を見る</a>
+                    </div>
+
+                    <!-- Russell Hobbs 電動ミル -->
+                    <div class="product-card" onclick="toggleProduct(4)">
+                        <input type="checkbox" name="product" value="Russell Hobbs 電動ミル ソルト&ペッパー" id="prod4" onclick="event.stopPropagation(); updateCardSelection();">
+                        <div class="product-name">Russell Hobbs 電動ミル ソルト＆ペッパー ウッドスタンドセット</div>
+                        <div class="product-info">
+                            <div class="info-item">
+                                <span class="info-label">価格:</span>
+                                <span class="info-value">約¥9,000～¥11,000</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">特徴:</span>
+                                <span class="info-value">おしゃれ、こだわった塩・胡椒をつかえる、片手ワンプッシュ、LEDライト付</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">内容:</span>
+                                <span class="info-value">電動ミル2本、ウッドスタンド付き</span>
+                            </div>
+                        </div>
+                        <a href="https://tanp.jp/products/view/39488" target="_blank" class="product-link" onclick="event.stopPropagation()">🔗 商品を見る</a>
+                    </div>
+
+                    <!-- Diptyque ハンドウォッシュ -->
+                    <div class="product-card" onclick="toggleProduct(5)">
+                        <input type="checkbox" name="product" value="Diptyque マイルド ハンドウォッシュ" id="prod5" onclick="event.stopPropagation(); updateCardSelection();">
+                        <div class="product-name">Diptyque マイルド ハンドウォッシュ（ガラスボトル）</div>
+                        <div class="product-info">
+                            <div class="info-item">
+                                <span class="info-label">価格:</span>
+                                <span class="info-value">約¥9,900</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">特徴:</span>
+                                <span class="info-value">ハンドウォッシュ、無茶人気、ラベンダー・ローズマリー・イランイラン・アンバーの香り</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">内容:</span>
+                                <span class="info-value">350ml ガラスボトル、リフィル詰め替え可能</span>
+                            </div>
+                        </div>
+                        <a href="https://www.diptyqueparis.com/ja_jp/p/softening-hand-wash-glass-1.html" target="_blank" class="product-link" onclick="event.stopPropagation()">🔗 商品を見る</a>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="submit-btn" id="submitBtn">🎁 投票する</button>
+                    <button type="button" class="update-btn" id="updateBtn" style="display: none;" onclick="updateVotes()">✏️ 投票を修正する</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="results-section">
+            <div class="results-header">
+                <h2>📊 投票結果</h2>
+                <p>リアルタイムで更新されます</p>
+            </div>
+            <div id="resultsContainer">
+                <!-- 結果がここに表示されます -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 確認モーダル -->
+    <div class="modal" id="resetModal">
+        <div class="modal-content">
+            <div class="modal-header">⚠️ 確認</div>
+            <div class="modal-body">
+                すべての投票データを削除してもよろしいですか？<br>
+                この操作は取り消せません。
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-cancel" onclick="closeResetModal()">キャンセル</button>
+                <button class="modal-btn modal-btn-confirm" onclick="confirmReset()">削除する</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ローカルストレージに投票データを保存
+        let votes = JSON.parse(localStorage.getItem('present_votes')) || {};
+        let voters = JSON.parse(localStorage.getItem('present_voters')) || {};
+
+        // 管理者パネルの表示切替
+        function toggleAdminPanel() {
+            const panel = document.getElementById('adminPanel');
+            panel.classList.toggle('active');
+            if (panel.classList.contains('active')) {
+                updateVoterManagementList();
+            }
+        }
+
+        // 投票者管理リストの更新
+        function updateVoterManagementList() {
+            const container = document.getElementById('voterManagementList');
+            
+            if (Object.keys(voters).length === 0) {
+                container.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">投票者がいません</p>';
+                return;
+            }
+
+            let html = '';
+            Object.entries(voters).forEach(([name, products]) => {
+                html += `
+                    <div class="voter-item">
+                        <div class="voter-info">
+                            <div class="voter-name-label">${name}</div>
+                            <div class="voter-products">投票先: ${products.join(', ')}</div>
+                        </div>
+                        <button class="delete-voter-btn" onclick="deleteVoter('${name}')">削除</button>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // 個別投票者の削除
+        function deleteVoter(voterName) {
+            if (!confirm(`${voterName}さんの投票を削除しますか？`)) {
+                return;
+            }
+
+            if (voters[voterName]) {
+                const products = voters[voterName];
+                products.forEach(product => {
+                    if (votes[product]) {
+                        votes[product] = votes[product].filter(name => name !== voterName);
+                        if (votes[product].length === 0) {
+                            delete votes[product];
+                        }
+                    }
+                });
+                delete voters[voterName];
+            }
+
+            localStorage.setItem('present_votes', JSON.stringify(votes));
+            localStorage.setItem('present_voters', JSON.stringify(voters));
+
+            showAlert(`${voterName}さんの投票を削除しました`, 'success');
+            updateResults();
+            updateVoterManagementList();
+        }
+
+        // リセットモーダルの表示
+        function showResetModal() {
+            document.getElementById('resetModal').classList.add('active');
+        }
+
+        // リセットモーダルを閉じる
+        function closeResetModal() {
+            document.getElementById('resetModal').classList.remove('active');
+        }
+
+        // リセット確認
+        function confirmReset() {
+            votes = {};
+            voters = {};
+            localStorage.setItem('present_votes', JSON.stringify(votes));
+            localStorage.setItem('present_voters', JSON.stringify(voters));
+            
+            closeResetModal();
+            showAlert('すべての投票をリセットしました', 'success');
+            updateResults();
+            updateVoterManagementList();
+        }
+
+        // データのエクスポート
+        function exportData() {
+            const data = {
+                votes: votes,
+                voters: voters,
+                exportDate: new Date().toISOString()
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `プレゼント投票データ_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showAlert('データをエクスポートしました', 'success');
+        }
+
+        // データのインポート
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.votes && data.voters) {
+                        if (confirm('現在のデータを上書きしますか？')) {
+                            votes = data.votes;
+                            voters = data.voters;
+                            localStorage.setItem('present_votes', JSON.stringify(votes));
+                            localStorage.setItem('present_voters', JSON.stringify(voters));
+                            showAlert('データをインポートしました', 'success');
+                            updateResults();
+                            updateVoterManagementList();
+                        }
+                    } else {
+                        showAlert('無効なデータ形式です', 'error');
+                    }
+                } catch (error) {
+                    showAlert('ファイルの読み込みに失敗しました', 'error');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        // プレゼント選択
+        function toggleProduct(index) {
+            const checkbox = document.getElementById('prod' + index);
+            checkbox.checked = !checkbox.checked;
+            updateCardSelection();
+            updateMyVotesDisplay();
+        }
+
+        // カード選択状態を更新
+        function updateCardSelection() {
+            const cards = document.querySelectorAll('.product-card');
+            const checkboxes = document.querySelectorAll('input[name="product"]');
+            
+            cards.forEach((card, index) => {
+                if (checkboxes[index].checked) {
+                    card.classList.add('selected');
+                } else {
+                    card.classList.remove('selected');
+                }
+            });
+
+            updateMyVotesDisplay();
+        }
+
+        // 自分の投票表示を更新
+        function updateMyVotesDisplay() {
+            const checkboxes = document.querySelectorAll('input[name="product"]:checked');
+            const myVotesSection = document.getElementById('myVotesSection');
+            const myVotesList = document.getElementById('myVotesList');
+            
+            if (checkboxes.length > 0) {
+                myVotesSection.style.display = 'block';
+                myVotesList.innerHTML = '';
+                
+                checkboxes.forEach(checkbox => {
+                    const tag = document.createElement('div');
+                    tag.className = 'my-vote-tag';
+                    tag.innerHTML = `
+                        <span>${checkbox.value}</span>
+                        <button class="remove-vote-btn" onclick="removeVote('${checkbox.value}', event)">×</button>
+                    `;
+                    myVotesList.appendChild(tag);
+                });
+            } else {
+                myVotesSection.style.display = 'none';
+            }
+        }
+
+        // 個別の投票を削除
+        function removeVote(productValue, event) {
+            event.stopPropagation();
+            const checkboxes = document.querySelectorAll('input[name="product"]');
+            checkboxes.forEach(checkbox => {
+                if (checkbox.value === productValue) {
+                    checkbox.checked = false;
+                }
+            });
+            updateCardSelection();
+        }
+
+        // すべての投票をクリア
+        function clearAllVotes() {
+            const checkboxes = document.querySelectorAll('input[name="product"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            updateCardSelection();
+        }
+
+        // チェックボックスの変更を監視
+        document.querySelectorAll('input[name="product"]').forEach(checkbox => {
+            checkbox.addEventListener('change', updateCardSelection);
+        });
+
+        // 名前入力時に既存の投票をチェック
+        document.getElementById('voterName').addEventListener('input', function() {
+            const voterName = this.value.trim();
+            const submitBtn = document.getElementById('submitBtn');
+            const updateBtn = document.getElementById('updateBtn');
+            
+            if (voterName && voters[voterName]) {
+                submitBtn.style.display = 'none';
+                updateBtn.style.display = 'block';
+                loadExistingVotes(voterName);
+                showAlert(`${voterName}さんは既に投票済みです。修正する場合は選択を変更して「投票を修正する」ボタンを押してください。`, 'info');
+            } else {
+                submitBtn.style.display = 'block';
+                updateBtn.style.display = 'none';
+            }
+        });
+
+        // 既存の投票を読み込み
+        function loadExistingVotes(voterName) {
+            const existingVotes = voters[voterName] || [];
+            const checkboxes = document.querySelectorAll('input[name="product"]');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = existingVotes.includes(checkbox.value);
+            });
+            
+            updateCardSelection();
+        }
+
+        // アラート表示
+        function showAlert(message, type) {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => {
+                alertBox.innerHTML = '';
+            }, 5000);
+        }
+
+        // フォーム送信
+        document.getElementById('votingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const voterName = document.getElementById('voterName').value.trim();
+            const selectedCheckboxes = document.querySelectorAll('input[name="product"]:checked');
+            
+            if (!voterName) {
+                showAlert('お名前を入力してください', 'error');
+                return;
+            }
+
+            if (selectedCheckboxes.length === 0) {
+                showAlert('少なくとも1つのプレゼントを選択してください', 'error');
+                return;
+            }
+
+            // 既存の投票があれば削除
+            if (voters[voterName]) {
+                const oldVotes = voters[voterName];
+                oldVotes.forEach(product => {
+                    if (votes[product]) {
+                        votes[product] = votes[product].filter(name => name !== voterName);
+                        if (votes[product].length === 0) {
+                            delete votes[product];
+                        }
+                    }
+                });
+            }
+
+            // 新しい投票を記録
+            const selectedProducts = [];
+            selectedCheckboxes.forEach(checkbox => {
+                const product = checkbox.value;
+                selectedProducts.push(product);
+                
+                if (!votes[product]) {
+                    votes[product] = [];
+                }
+                votes[product].push(voterName);
+            });
+
+            voters[voterName] = selectedProducts;
+
+            // ローカルストレージに保存
+            localStorage.setItem('present_votes', JSON.stringify(votes));
+            localStorage.setItem('present_voters', JSON.stringify(voters));
+
+            showAlert(`${voterName}さんの投票を受け付けました！（${selectedProducts.length}品）`, 'success');
+            
+            // フォームをリセット
+            document.getElementById('voterName').value = '';
+            document.querySelectorAll('input[name="product"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            updateCardSelection();
+            
+            document.getElementById('submitBtn').style.display = 'block';
+            document.getElementById('updateBtn').style.display = 'none';
+
+            // 結果を更新
+            updateResults();
+        });
+
+        // 投票を修正
+        function updateVotes() {
+            const voterName = document.getElementById('voterName').value.trim();
+            const selectedCheckboxes = document.querySelectorAll('input[name="product"]:checked');
+            
+            if (!voterName) {
+                showAlert('お名前を入力してください', 'error');
+                return;
+            }
+
+            if (selectedCheckboxes.length === 0) {
+                showAlert('少なくとも1つのプレゼントを選択してください', 'error');
+                return;
+            }
+
+            // 既存の投票を削除
+            if (voters[voterName]) {
+                const oldVotes = voters[voterName];
+                oldVotes.forEach(product => {
+                    if (votes[product]) {
+                        votes[product] = votes[product].filter(name => name !== voterName);
+                        if (votes[product].length === 0) {
+                            delete votes[product];
+                        }
+                    }
+                });
+            }
+
+            // 新しい投票を記録
+            const selectedProducts = [];
+            selectedCheckboxes.forEach(checkbox => {
+                const product = checkbox.value;
+                selectedProducts.push(product);
+                
+                if (!votes[product]) {
+                    votes[product] = [];
+                }
+                votes[product].push(voterName);
+            });
+
+            voters[voterName] = selectedProducts;
+
+            // ローカルストレージに保存
+            localStorage.setItem('present_votes', JSON.stringify(votes));
+            localStorage.setItem('present_voters', JSON.stringify(voters));
+
+            showAlert(`${voterName}さんの投票を修正しました！（${selectedProducts.length}品）`, 'success');
+            
+            // フォームをリセット
+            document.getElementById('voterName').value = '';
+            document.querySelectorAll('input[name="product"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            updateCardSelection();
+            
+            document.getElementById('submitBtn').style.display = 'block';
+            document.getElementById('updateBtn').style.display = 'none';
+
+            // 結果を更新
+            updateResults();
+        }
+
+        // 結果を更新
+        function updateResults() {
+            const resultsContainer = document.getElementById('resultsContainer');
+            
+            if (Object.keys(votes).length === 0) {
+                resultsContainer.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">まだ投票がありません</p>';
+                return;
+            }
+
+            // 投票数でソート
+            const sortedVotes = Object.entries(votes).sort((a, b) => b[1].length - a[1].length);
+            const maxVotes = sortedVotes[0][1].length;
+
+            let html = '';
+            sortedVotes.forEach(([product, voterNames], index) => {
+                const voteCount = voterNames.length;
+                const percentage = (voteCount / maxVotes) * 100;
+                const isWinner = index === 0;
+
+                html += `
+                    <div class="result-item">
+                        <div class="result-header">
+                            <div class="result-name">
+                                ${product}
+                                ${isWinner ? '<span class="winner-badge">🏆 トップ</span>' : ''}
+                            </div>
+                            <div class="result-votes">${voteCount}票</div>
+                        </div>
+                        <div class="result-bar">
+                            <div class="result-bar-fill" style="width: ${percentage}%">
+                                ${percentage.toFixed(0)}%
+                            </div>
+                        </div>
+                        <div class="voters-list">
+                            <div class="voters-label">投票者:</div>
+                            ${voterNames.map(name => `<span class="voter-name">${name}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            resultsContainer.innerHTML = html;
+        }
+
+        // ページ読み込み時に結果を更新
+        updateResults();
+    </script>
+</body>
+</html>
